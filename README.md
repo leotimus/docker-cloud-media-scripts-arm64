@@ -1,7 +1,6 @@
-# Usage
-
 # Note: This is an armhf specific fork. This was created strictly for my personal use on a Raspberry Pi 3. The only non-obvious change is the plexdrive binary had to be compiled from source in an ubuntu container because of the issues with the release version being cross compiled and having issues detecting env variables.
 
+# Usage
 Default settings use ~100GB for local media, remove atleast 80 GB and Plexdrive chunks and cache are removed after 24 hours:
 ```
 docker create \
