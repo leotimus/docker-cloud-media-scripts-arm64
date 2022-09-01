@@ -14,7 +14,7 @@ rclone_options="${rclone_config} --buffer-size $(printenv BUFFER_SIZE) --checker
 rclone_mount_options="${rclone_options} --allow-non-empty --allow-other --max-read-ahead $(printenv MAX_READ_AHEAD) --uid ${_puid:-911} --gid ${_pgid:-911}"
 
 plexdrive_temp_dir="/chunks"
-plexdrive_options="mount --config=/config --chunk-size=$(printenv CHUNK_SIZE) --uid=${_puid:-911} --gid=${_pgid:-911} -o allow_other"
+plexdrive_options="mount -v 4 --config=/config --chunk-size=$(printenv CHUNK_SIZE) --uid=${_puid:-911} --gid=${_pgid:-911} -o allow_other"
 if [ ! -z $(printenv CLEAR_CHUNK_MAX_SIZE) ]; then
     plexdrive_options="${plexdrive_options} --clear-chunk-max-size=$(printenv CLEAR_CHUNK_MAX_SIZE)"
 fi

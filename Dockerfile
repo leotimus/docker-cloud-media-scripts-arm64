@@ -1,10 +1,7 @@
 ####################
 # BASE IMAGE
 ####################
-FROM arm32v7/ubuntu:16.04
-
-MAINTAINER madslundt@live.dk <madslundt@live.dk>
-
+FROM arm64v8/ubuntu:22.04
 
 ####################
 # INSTALLATIONS
@@ -19,6 +16,7 @@ RUN apt-get update && \
         bc \
         unzip \
         wget \
+        xz-utils \
         ca-certificates && \
     update-ca-certificates && \
     apt-get install -y openssl && \
@@ -27,12 +25,10 @@ RUN apt-get update && \
 # S6 overlay
 ENV S6_BEHAVIOUR_IF_STAGE2_FAILS=2
 ENV S6_KEEP_ENV=1
-
-RUN \
-    OVERLAY_VERSION=$(curl -sX GET "https://api.github.com/repos/just-containers/s6-overlay/releases/latest" | awk '/tag_name/{print $4;exit}' FS='[""]') && \
-    curl -o /tmp/s6-overlay.tar.gz -L "https://github.com/just-containers/s6-overlay/releases/download/${OVERLAY_VERSION}/s6-overlay-armhf.tar.gz" && \
-    tar xfz  /tmp/s6-overlay.tar.gz -C /
-
+ADD https://github.com/just-containers/s6-overlay/releases/download/v3.1.2.1/s6-overlay-noarch.tar.xz /tmp
+RUN tar -C / -Jxpf /tmp/s6-overlay-noarch.tar.xz
+ADD https://github.com/just-containers/s6-overlay/releases/download/v3.1.2.1/s6-overlay-aarch64.tar.xz /tmp/
+RUN tar -C / -Jxpf /tmp/s6-overlay-aarch64.tar.xz
 
 ####################
 # ENVIRONMENT VARIABLES
@@ -88,16 +84,19 @@ RUN chmod a+x /install.sh && \
     apt-get autoremove -y && \
     rm -rf /tmp/* /var/lib/{apt,dpkg,cache,log}/
 
+RUN chmod a+x /etc/services.d/mount/run
+RUN chmod a+x /etc/cont-finish.d/10-unmount-fuse
+
 ####################
 # VOLUMES
 ####################
 # Define mountable directories.
-#VOLUME /data/db /config /cloud-encrypt /cloud-decrypt /local-decrypt /local-media /chunks /log
-VOLUME /data/db /cloud-encrypt /cloud-decrypt /local-decrypt /local-media /chunks /log
+VOLUME /data/db /config /cloud-encrypt /cloud-decrypt /local-decrypt /local-media /chunks /log
+# VOLUME /data/db /cloud-encrypt /cloud-decrypt /local-decrypt /local-media /chunks /log
 
+RUN mkdir /data && mkdir /log && mkdir /config
 
-RUN chmod -R 777 /data /log && \
-    mkdir /config
+RUN chmod -R 777 /data /log
 
 ####################
 # WORKING DIRECTORY
@@ -109,4 +108,3 @@ WORKDIR /data
 # ENTRYPOINT
 ####################
 ENTRYPOINT ["/init"]
-CMD cron -f

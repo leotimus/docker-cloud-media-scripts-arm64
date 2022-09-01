@@ -14,7 +14,7 @@ fi
 if [ "$(printenv ENCRYPT_MEDIA)" != "0" ]; then
     if [ -z "$(ls -A ${cloud_encrypt_dir})" ]; then
         printf "\n\nWaiting for ${cloud_encrypt_dir}\n\n"
-        exit 0
+        exit 1
     fi
 
     if [ $(ps -ef | grep "rclone" | grep -v "grep" | wc -l) == "0" ]; then
@@ -25,7 +25,7 @@ fi
 
 if [ -z "$(ls -A ${cloud_decrypt_dir})" ]; then
     printf "\n\nWaiting for ${cloud_encrypt_dir}\n\n"
-    exit 0
+    exit 1
 fi
 
 if [ $(ps -ef | grep "unionfs" | grep -v "grep" | wc -l) == "0" ]; then
@@ -36,5 +36,5 @@ fi
 if [ "$all_good" -eq "1" ]; then
    printf "\n\nEverything looks good\n\n"
 else
-    exit 0
+    exit 1
 fi
